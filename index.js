@@ -15,6 +15,8 @@
  * limitations under the License.
  */
 // [START gmail_quickstart]
+var express = require('express');
+var app = express();
 const fs = require('fs');
 const readline = require('readline');
 const {google} = require('googleapis');
@@ -29,13 +31,25 @@ const SCOPES = [
 // created automatically when the authorization flow completes for the first
 // time.
 const TOKEN_PATH = 'token.json';
+let sendTo = "";
+//send email api with parameter sendTo is called http://localhost:8081/sendEmail?sendTo=keshavgoyal.be18ele@pec.edu.in
+app.get('/sendEmail', function (req, res) {
+  sendTo = req.query.sendTo ;
+   // Load client secrets from a local file.
+  fs.readFile('credentials.json', (err, content) => {
+    if (err) return console.log('Error loading client secret file:', err);
+    // Authorize a client with credentials, then call the Gmail API.
+    authorize(JSON.parse(content), sendMessage);
+    res.send("success");
+  });
+})
 
-// Load client secrets from a local file.
-fs.readFile('credentials.json', (err, content) => {
-  if (err) return console.log('Error loading client secret file:', err);
-  // Authorize a client with credentials, then call the Gmail API.
-  authorize(JSON.parse(content), sendMessage);
-});
+var server = app.listen(8081, function () {
+   var host = server.address().address
+   var port = server.address().port
+   console.log("Example app listening at http://%s:%s", host, port)
+})
+
 
 /**
  * Create an OAuth2 client with the given credentials, and then execute the
@@ -112,7 +126,7 @@ function makeBody(to, from, subject, message) {
  */
 function sendMessage(auth) {
   console.log("wapas aaya");
-    var raw = makeBody('keshavgoyal.be18ele@pec.edu.in', 'keshavg220@gmail.com', 'This is your subject', 'I got this working finally!!!');
+    var raw = makeBody(sendTo, 'keshavg220@gmail.com', 'This is your subject', 'I got this working finally!!!');
     const gmail = google.gmail({version: 'v1', auth});
     gmail.users.messages.send({
         auth: auth,
